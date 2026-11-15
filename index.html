@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Capacity-Aware Mandi Flow Orchestrator - Smart procurement scheduling system for farmers with real-time queue management, digital tokens, IVR helpline, and capacity-based slot allocation.">
+    <title>MandiFlow Orchestrator — Smart Procurement System | SIH 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ───── Preloader ───── -->
+    <div id="preloader" class="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-icon">🌾</div>
+            <div class="preloader-bar"><div class="preloader-fill"></div></div>
+            <p class="preloader-text">Loading Mandi Flow Orchestrator…</p>
+            <p style="font-size:12px; color:var(--gold-400); margin-top:8px;">SIH 2026 • PS 26032 • Team NUVEXA</p>
+        </div>
+    </div>
+
+    <!-- ───── Navigation ───── -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">🌾</span>
+                <span class="logo-text">Mandi<span class="logo-accent">Flow</span></span>
+                <span class="sih-nav-badge">SIH 2026 • PS 26032 • NUVEXA</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#hero" class="nav-link active" data-section="hero">Home</a></li>
+                <li><a href="#registration" class="nav-link" data-section="registration">Register</a></li>
+                <li><a href="#slot-booking" class="nav-link" data-section="slot-booking">Book Slot</a></li>
+                <li><a href="#capacity" class="nav-link" data-section="capacity">Capacity</a></li>
+                <li><a href="#queue" class="nav-link" data-section="queue">Queue</a></li>
+                <li><a href="#procurement" class="nav-link" data-section="procurement">Gate & Process</a></li>
+                <li><a href="#tracking" class="nav-link" data-section="tracking">Payment & DBT</a></li>
+                <li><a href="#exceptions" class="nav-link" data-section="exceptions">Exceptions</a></li>
+            </ul>
+            <div class="nav-actions">
+                <!-- Language Selector -->
+                <div class="lang-select-wrapper">
+                    <select class="lang-select" id="langSelect" title="Select Interface Language">
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी</option>
+                        <option value="pa">ਪੰਜਾਬੀ</option>
+                    </select>
+                </div>
+
+                <!-- Network Status Simulation Toggle -->
+                <button class="btn-network online" id="btnNetwork" title="Click to toggle Poor Connectivity / Offline Mode (Slide 4 Mitigation)">
+                    <span class="network-dot"></span>
+                    <span class="network-label" id="networkLabel">Online</span>
+                </button>
+
+                <!-- IVR Phone Helpline Launcher -->
+                <button class="btn-nav-action highlight" id="btnOpenIVR" title="Launch Feature Phone / IVR Voice Simulator (Slide 2 & 4)">
+                    📞 <span class="btn-nav-text">IVR Helpline</span>
+                </button>
+
+                <!-- SMS Fallback Messages Launcher -->
+                <button class="btn-nav-action" id="btnOpenSMS" title="Simulated SMS Fallback Notifications">
+                    💬 <span class="btn-nav-text">SMS</span> <span class="badge-count" id="smsCountBadge">3</span>
+                </button>
+
+                <!-- Architecture & Reference Spec -->
+                <button class="btn-nav-action" id="btnOpenArch" title="View Technical Architecture & Research References (Slide 3 & 6)">
+                    📐 <span class="btn-nav-text">Architecture</span>
+                </button>
+
+                <!-- Notification Bell -->
+                <button class="btn-notification" id="btnNotification" title="Yard Notifications">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-badge" id="notifBadge">3</span>
+                </button>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ───── Offline Alert Bar (Slide 4: Poor Connectivity Mitigation) ───── -->
+    <div class="offline-alert-bar" id="offlineAlertBar">
+        <span>📶 <strong>Offline / Low-Bandwidth Mode Active:</strong> Operating on cached data. Transactions are queued locally and SMS fallback is triggered.</span>
+        <button id="btnForceSync" onclick="window.syncOfflineData()">Sync Now</button>
+    </div>
+
+    <!-- ───── Notification Panel ───── -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notif-header">
+            <h3>Yard Notifications</h3>
+            <button class="notif-close" id="notifClose">&times;</button>
+        </div>
+        <div class="notif-list" id="notifList">
+            <div class="notif-item notif-success">
+                <div class="notif-icon">✅</div>
+                <div>
+                    <p class="notif-title">Slot Confirmed</p>
+                    <p class="notif-desc">Your slot for 09:00–10:00 AM has been confirmed. Token: MF-2026-4821</p>
+                    <span class="notif-time">2 min ago</span>
+                </div>
+            </div>
+            <div class="notif-item notif-warning">
+                <div class="notif-icon">⚠️</div>
+                <div>
+                    <p class="notif-title">Queue Update</p>
+                    <p class="notif-desc">3 farmers ahead of you. Estimated wait: 21 min.</p>
+                    <span class="notif-time">10 min ago</span>
+                </div>
+            </div>
+            <div class="notif-item notif-info">
+                <div class="notif-icon">📢</div>
+                <div>
+                    <p class="notif-title">Mandi Announcement</p>
+                    <p class="notif-desc">Weighbridge #2 is now operational. Processing speed increased by 30%.</p>
+                    <span class="notif-time">30 min ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ───── Hero Section ───── -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-particles" id="particles"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🌾 SMART INDIA HACKATHON 2026 • PS ID: 26032 • TEAM NUVEXA</div>
+            <h1 class="hero-title">
+                Capacity-Aware<br>
+                <span class="gradient-text">Mandi Flow</span><br>
+                Orchestrator
+            </h1>
+            <p class="hero-subtitle">
+                Eliminate procurement centre congestion with intelligent capacity-based scheduling, 
+                virtual queues, interactive IVR helpline, and real-time digital tokens for farmers.
+            </p>
+            <div class="hero-cta">
+                <button class="btn-primary" onclick="scrollToSection('registration')">
+                    <span>Register as Farmer</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <button class="btn-outline" onclick="scrollToSection('capacity')">
+                    <span>View Yard Capacity</span>
+                </button>
+            </div>
+
+            <!-- Quick Action Demo Pills (PDF Slide Highlights) -->
+            <div class="quick-action-bar">
+                <button class="quick-action-pill gold" id="pillLaunchIVR">📞 Launch IVR Voice Menu</button>
+                <button class="quick-action-pill" id="pillSimulateYard">🚪 Test Gate-to-Unloading (5 Stages)</button>
+                <button class="quick-action-pill" id="pillSimulateException">⚡ Test Dynamic Exceptions</button>
+                <button class="quick-action-pill" id="pillViewReceipt">📄 View Official J-Form Receipt</button>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span class="stat-number" data-target="12450">0</span>
+                    <span class="stat-label">Farmers Registered</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="8920">0</span>
+                    <span class="stat-label">Slots Allocated</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="97">0</span>
+                    <span class="stat-label">% On-time Rate</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="35">0</span>
+                    <span class="stat-label">Min Avg Wait (was 6.5h)</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-flow-visual">
+            <div class="flow-diagram">
+                <div class="flow-node flow-active" data-step="1" onclick="scrollToSection('registration')" title="Click to go to Registration">
+                    <div class="flow-icon">📝</div>
+                    <span>Register</span>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-node" data-step="2" onclick="scrollToSection('slot-booking')" title="Click to Book Slot">
+                    <div class="flow-icon">📅</div>
+                    <span>Book Slot</span>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-node" data-step="3" onclick="scrollToSection('capacity')" title="Click to View Capacity">
+                    <div class="flow-icon">⚙️</div>
+                    <span>Capacity</span>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-node" data-step="4" onclick="scrollToSection('queue')" title="Click to View Token & Queue">
+                    <div class="flow-icon">🎫</div>
+                    <span>Digital Token</span>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-node" data-step="5" onclick="scrollToSection('procurement')" title="Click to View Gate & Assaying">
+                    <div class="flow-icon">🚪</div>
+                    <span>Gate Entry</span>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-node" data-step="6" onclick="scrollToSection('procurement')" title="Click to View Weighing & Procurement">
+                    <div class="flow-icon">🏭</div>
+                    <span>Procure</span>
+                </div>
+                <div class="flow-connector"></div>
+                <div class="flow-node" data-step="7" onclick="scrollToSection('tracking')" title="Click to View Payment & DBT">
+                    <div class="flow-icon">💰</div>
+                    <span>Payment / DBT</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Live Government MSP Ticker ───── -->
+    <div class="msp-rates-marquee">
+        <div class="msp-rates-inner">
+            <span class="msp-item"><span class="msp-item-name">🌾 Wheat (गेहूं):</span> <span class="msp-item-price">₹ 2,275 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌾 Paddy/Rice (चावल):</span> <span class="msp-item-price">₹ 2,300 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌱 Soybean (सोयाबीन):</span> <span class="msp-item-price">₹ 4,892 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌽 Maize (मक्का):</span> <span class="msp-item-price">₹ 2,090 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌻 Mustard (सरसों):</span> <span class="msp-item-price">₹ 5,650 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌿 Gram (चना):</span> <span class="msp-item-price">₹ 5,440 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">☁️ Cotton (कपास):</span> <span class="msp-item-price">₹ 7,121 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🎋 Sugarcane (गन्ना):</span> <span class="msp-item-price">₹ 315 / Qtl</span></span>
+            <!-- Duplicate for infinite marquee loop -->
+            <span class="msp-item"><span class="msp-item-name">🌾 Wheat (गेहूं):</span> <span class="msp-item-price">₹ 2,275 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌾 Paddy/Rice (चावल):</span> <span class="msp-item-price">₹ 2,300 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌱 Soybean (सोयाबीन):</span> <span class="msp-item-price">₹ 4,892 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌽 Maize (मक्का):</span> <span class="msp-item-price">₹ 2,090 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌻 Mustard (सरसों):</span> <span class="msp-item-price">₹ 5,650 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🌿 Gram (चना):</span> <span class="msp-item-price">₹ 5,440 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">☁️ Cotton (कपास):</span> <span class="msp-item-price">₹ 7,121 / Qtl</span></span>
+            <span class="msp-item"><span class="msp-item-name">🎋 Sugarcane (गन्ना):</span> <span class="msp-item-price">₹ 315 / Qtl</span></span>
+        </div>
+    </div>
+
+    <!-- ───── Registration Section ───── -->
+    <section class="section" id="registration">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Step 1</span>
+                <h2 class="section-title">Farmer <span class="gradient-text">Registration</span></h2>
+                <p class="section-subtitle">Register your details, land records, and bank account for seamless DBT payment.</p>
+            </div>
+            <div class="registration-grid">
+                <div class="form-card glass-card">
+                    <div class="form-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h3>📋 Farmer Particulars</h3>
+                            <p>KYC, Land Record & DBT Verification</p>
+                        </div>
+                        <button type="button" class="btn-outline-sm" id="btnQuickFillDemo" style="font-size:11px; padding:4px 10px;">⚡ Autofill Demo</button>
+                    </div>
+                    <form id="registrationForm" class="form-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="farmerName">Full Name <span class="required">*</span></label>
+                                <input type="text" id="farmerName" placeholder="Enter farmer full name" value="Ramesh Kumar" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="farmerPhone">Mobile Number <span class="required">*</span></label>
+                                <input type="tel" id="farmerPhone" placeholder="+91 98765 43210" value="+91 98765 43210" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="farmerAadhaar">Aadhaar Number <span class="required">*</span></label>
+                                <input type="text" id="farmerAadhaar" placeholder="XXXX XXXX XXXX" maxlength="14" value="4521 8839 1204" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="farmerLandRecord">Land Record / Khasra No. (Slide 6)</label>
+                                <input type="text" id="farmerLandRecord" placeholder="e.g. Khasra #142/2A (4.5 Acres)" value="Khasra #142/2A (4.5 Acres)">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="farmerVillage">Village / Tehsil</label>
+                                <input type="text" id="farmerVillage" placeholder="Enter village name" value="Sanwer">
+                            </div>
+                            <div class="form-group">
+                                <label for="farmerDistrict">District</label>
+                                <select id="farmerDistrict">
+                                    <option>Indore</option>
+                                    <option>Bhopal</option>
+                                    <option>Jabalpur</option>
+                                    <option>Gwalior</option>
+                                    <option>Ujjain</option>
+                                    <option>Sagar</option>
+                                    <option>Rewa</option>
+                                    <option>Satna</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="farmerMandi">Preferred Mandi Center</label>
+                                <select id="farmerMandi">
+                                    <option>Krishi Upaj Mandi, Indore</option>
+                                    <option>Krishi Upaj Mandi, Bhopal</option>
+                                    <option>Krishi Upaj Mandi, Jabalpur</option>
+                                    <option>Krishi Upaj Mandi, Gwalior</option>
+                                    <option>Krishi Upaj Mandi, Ujjain</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="farmerBankAcc">Aadhaar-Linked Bank A/c (For DBT)</label>
+                                <input type="text" id="farmerBankAcc" placeholder="e.g. SBI ****4523" value="SBI ****4523">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary btn-full">
+                            <span>Register & Proceed to Slot Booking</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </form>
+                </div>
+                <div class="info-cards">
+                    <div class="info-card glass-card">
+                        <div class="info-icon">🆔</div>
+                        <h4>e-KYC & Land Record Integration</h4>
+                        <p>Automatically verified with State Bhulekh / Land Records and Aadhaar database to ensure genuine farmer access.</p>
+                    </div>
+                    <div class="info-card glass-card">
+                        <div class="info-icon">📱</div>
+                        <h4>Omnichannel SMS & IVR Sync</h4>
+                        <p>Works on basic feature phones. Receive tokens, gate call alerts, and DBT payment credits via SMS and IVR voice.</p>
+                    </div>
+                    <div class="info-card glass-card">
+                        <div class="info-icon">🔒</div>
+                        <h4>Direct Benefit Transfer (DBT)</h4>
+                        <p>Procurement payment is routed directly to the farmer's bank account via PFMS within 48 to 72 hours.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Slot Booking Section ───── -->
+    <section class="section section-alt" id="slot-booking">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Step 2</span>
+                <h2 class="section-title">Capacity-Aware <span class="gradient-text">Slot Request</span></h2>
+                <p class="section-subtitle">Intelligent scheduling allocates time slots based on the centre's real-time assaying & weighbridge capacity.</p>
+            </div>
+
+            <!-- Dynamic Capacity Recommendation Banner -->
+            <div class="recommendation-banner" id="slotRecBanner">
+                <div class="rec-icon">💡</div>
+                <div class="rec-content">
+                    <h5 id="recTitle">AI Recommendation: 11:00 AM – 12:00 PM is Optimal</h5>
+                    <p id="recDesc">Assaying stations report 35% lower load during this window. Estimated yard turnaround is only 22 minutes (saves 45 min wait time!).</p>
+                </div>
+                <button type="button" class="rec-action-btn" id="btnApplyRecSlot">Select Optimal Slot</button>
+            </div>
+
+            <div class="slot-grid">
+                <div class="form-card glass-card">
+                    <div class="form-header">
+                        <h3>🌾 Crop & Quantity Demand Capture</h3>
+                        <p>Select produce and preferred arrival window</p>
+                    </div>
+                    <form id="slotForm" class="form-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cropType">Crop Type <span class="required">*</span></label>
+                                <select id="cropType" required>
+                                    <option value="wheat" data-msp="2275">Wheat (गेहूं) — MSP ₹2,275/Qtl</option>
+                                    <option value="rice" data-msp="2300">Rice / Paddy (चावल) — MSP ₹2,300/Qtl</option>
+                                    <option value="soybean" data-msp="4892">Soybean (सोयाबीन) — MSP ₹4,892/Qtl</option>
+                                    <option value="maize" data-msp="2090">Maize (मक्का) — MSP ₹2,090/Qtl</option>
+                                    <option value="gram" data-msp="5440">Gram (चना) — MSP ₹5,440/Qtl</option>
+                                    <option value="mustard" data-msp="5650">Mustard (सरसों) — MSP ₹5,650/Qtl</option>
+                                    <option value="cotton" data-msp="7121">Cotton (कपास) — MSP ₹7,121/Qtl</option>
+                                    <option value="sugarcane" data-msp="315">Sugarcane (गन्ना) — MSP ₹315/Qtl</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cropQuantity">Quantity (Quintals) <span class="required">*</span></label>
+                                <input type="number" id="cropQuantity" placeholder="e.g., 50" min="1" value="50" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicleType">Vehicle Type</label>
+                                <select id="vehicleType">
+                                    <option value="tractor">Tractor Trolley (~12 min weighment)</option>
+                                    <option value="truck">6-Tyre Truck (~18 min weighment)</option>
+                                    <option value="mini-truck">Mini Truck / Pickup (~8 min weighment)</option>
+                                    <option value="bullock-cart">Bullock Cart (~10 min weighment)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="slotDate">Procurement Date <span class="required">*</span></label>
+                                <input type="date" id="slotDate" required>
+                            </div>
+                        </div>
+
+                        <!-- Est MSP Value preview -->
+                        <div style="background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.25); border-radius:8px; padding:10px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:12.5px; color:var(--text-secondary);">Estimated MSP Value:</span>
+                            <span id="slotMspPreview" style="font-size:15px; font-weight:800; color:var(--gold-400);">₹ 1,13,750.00</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Capacity-Aware Time Slot <span class="required">*</span></label>
+                            <div class="time-slots" id="timeSlots">
+                                <!-- Dynamically generated -->
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary btn-full">
+                            <span>Allocate Capacity-Aware Slot & Generate Token</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </form>
+                </div>
+                <div class="slot-availability glass-card">
+                    <h3>📊 Today's Real-Time Centre Load</h3>
+                    <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Hourly arrival vs processing threshold (Max 24 vehicles/hr)</p>
+                    <div class="availability-chart" id="availabilityChart">
+                        <!-- Dynamically generated -->
+                    </div>
+                    <div class="slot-legend">
+                        <span class="legend-item"><span class="legend-dot available"></span> Available (&lt;70%)</span>
+                        <span class="legend-item"><span class="legend-dot filling"></span> Filling Fast (70–90%)</span>
+                        <span class="legend-item"><span class="legend-dot full"></span> At Capacity (&gt;90%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Capacity Engine Section ───── -->
+    <section class="section" id="capacity">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Core Engine</span>
+                <h2 class="section-title">Capacity-Aware <span class="gradient-text">Orchestration Engine</span></h2>
+                <p class="section-subtitle">Multi-dimensional load monitoring prevents bottlenecks across Assaying, Weighing, Unloading & Offtake.</p>
+            </div>
+
+            <!-- Bottleneck Alert -->
+            <div id="bottleneckBanner" style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:12px; padding:12px 18px; margin-bottom:20px; display:flex; align-items:center; gap:12px;">
+                <span style="font-size:22px;">🛡️</span>
+                <div style="font-size:13px; line-height:1.4;">
+                    <strong style="color:var(--green-300);">Yard Balance Optimal:</strong> All 3 weighbridges and 5 assaying stations operational. Incoming traffic flowing smoothly with zero gate congestion.
+                </div>
+            </div>
+
+            <div class="capacity-dashboard">
+                <div class="capacity-card glass-card" data-capacity="assaying">
+                    <div class="cap-header">
+                        <div class="cap-icon">🔬</div>
+                        <div class="cap-status status-good" id="statusAssaying">Optimal</div>
+                    </div>
+                    <h4>Assaying Capacity</h4>
+                    <p class="cap-desc">Quality inspection counters</p>
+                    <div class="cap-meter">
+                        <div class="meter-bar" id="barAssaying" style="--fill: 65%;">
+                            <div class="meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="valAssaying">65%</span>
+                    </div>
+                    <div class="cap-details">
+                        <span id="detailAssaying">5 / 8 stations active</span>
+                        <span>~12 min / sample</span>
+                    </div>
+                </div>
+
+                <div class="capacity-card glass-card" data-capacity="weighing">
+                    <div class="cap-header">
+                        <div class="cap-icon">⚖️</div>
+                        <div class="cap-status status-warning" id="statusWeighing">Moderate</div>
+                    </div>
+                    <h4>Weighbridge Capacity</h4>
+                    <p class="cap-desc">Gross & Tare weighbridges</p>
+                    <div class="cap-meter">
+                        <div class="meter-bar" id="barWeighing" style="--fill: 78%;">
+                            <div class="meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="valWeighing">78%</span>
+                    </div>
+                    <div class="cap-details">
+                        <span id="detailWeighing">3 / 4 bridges active</span>
+                        <span>~8 min / vehicle</span>
+                    </div>
+                </div>
+
+                <div class="capacity-card glass-card" data-capacity="unloading">
+                    <div class="cap-header">
+                        <div class="cap-icon">📦</div>
+                        <div class="cap-status status-good" id="statusUnloading">Optimal</div>
+                    </div>
+                    <h4>Unloading Bays</h4>
+                    <p class="cap-desc">Designated dumping & godown bays</p>
+                    <div class="cap-meter">
+                        <div class="meter-bar" id="barUnloading" style="--fill: 45%;">
+                            <div class="meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="valUnloading">45%</span>
+                    </div>
+                    <div class="cap-details">
+                        <span id="detailUnloading">6 / 10 bays free</span>
+                        <span>~18 min / unload</span>
+                    </div>
+                </div>
+
+                <div class="capacity-card glass-card" data-capacity="labour">
+                    <div class="cap-header">
+                        <div class="cap-icon">👷</div>
+                        <div class="cap-status status-good" id="statusLabour">Sufficient</div>
+                    </div>
+                    <h4>Labour / Hamalis</h4>
+                    <p class="cap-desc">Loading/unloading workforce</p>
+                    <div class="cap-meter">
+                        <div class="meter-bar" id="barLabour" style="--fill: 85%;">
+                            <div class="meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="valLabour">85%</span>
+                    </div>
+                    <div class="cap-details">
+                        <span>35 / 40 active workers</span>
+                        <span>Shift A in progress</span>
+                    </div>
+                </div>
+
+                <div class="capacity-card glass-card" data-capacity="storage">
+                    <div class="cap-header">
+                        <div class="cap-icon">🏗️</div>
+                        <div class="cap-status status-warning" id="statusStorage">Moderate</div>
+                    </div>
+                    <h4>Godown Storage</h4>
+                    <p class="cap-desc">Covered warehouse capacity</p>
+                    <div class="cap-meter">
+                        <div class="meter-bar" id="barStorage" style="--fill: 72%;">
+                            <div class="meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="valStorage">72%</span>
+                    </div>
+                    <div class="cap-details">
+                        <span>2,800 / 10,000 MT</span>
+                        <span>7,200 MT remaining</span>
+                    </div>
+                </div>
+
+                <div class="capacity-card glass-card" data-capacity="offtake">
+                    <div class="cap-header">
+                        <div class="cap-icon">🚛</div>
+                        <div class="cap-status status-good" id="statusOfftake">Optimal</div>
+                    </div>
+                    <h4>Off-take & Rake Logistics</h4>
+                    <p class="cap-desc">Outbound FCI transport</p>
+                    <div class="cap-meter">
+                        <div class="meter-bar" id="barOfftake" style="--fill: 40%;">
+                            <div class="meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="valOfftake">40%</span>
+                    </div>
+                    <div class="cap-details">
+                        <span>8 / 12 trucks cleared</span>
+                        <span>Next rake in 2.5 hrs</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Yard Capacity Controller for Judges/Evaluators -->
+            <div class="capacity-controls-box">
+                <div class="cap-control-item">
+                    <span class="cap-control-label">
+                        <span>Simulate Farmer Inflow Multiplier</span>
+                        <strong id="labelInflow">1.0x (Normal)</strong>
+                    </span>
+                    <input type="range" class="cap-range-slider" id="sliderInflow" min="0.5" max="2.5" step="0.1" value="1.0">
+                </div>
+                <div class="cap-control-item">
+                    <button type="button" class="cap-toggle-btn" id="btnToggleBridge2">
+                        <span>⚖️ Toggle Weighbridge #2 Breakdown</span>
+                    </button>
+                </div>
+                <div class="cap-control-item">
+                    <button type="button" class="cap-toggle-btn" id="btnToggleEmergencyAssay">
+                        <span>🔬 Add Mobile Assaying Counters (+3)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="capacity-summary glass-card">
+                <div class="summary-left">
+                    <h3>🧠 Capacity-Aware Scheduling Engine</h3>
+                    <p>Dynamically calculates the bottleneck minimum across Assaying, Weighbridges, and Unloading bays to auto-regulate digital token allocation.</p>
+                </div>
+                <div class="summary-right">
+                    <div class="summary-stat">
+                        <span class="big-number" id="sumMaxSlots">24</span>
+                        <span>Max Slots/Hour</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="big-number" id="sumAllocated">156</span>
+                        <span>Allocated Today</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="big-number" id="sumEfficiency">94<small>%</small></span>
+                        <span>Yard Efficiency</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Virtual Queue Section ───── -->
+    <section class="section section-alt" id="queue">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Live Virtual Queue</span>
+                <h2 class="section-title">Virtual Queue & <span class="gradient-text">Digital Token</span></h2>
+                <p class="section-subtitle">Your contactless digital token and real-time place in line. Zero physical waiting required.</p>
+            </div>
+            <div class="queue-layout">
+                <!-- Digital Token Card -->
+                <div class="token-card glass-card">
+                    <div class="token-header">
+                        <span class="token-label">DIGITAL TOKEN</span>
+                        <span class="token-status live-pulse" id="tokenLiveStatus">● LIVE IN QUEUE</span>
+                    </div>
+                    <div class="token-body">
+                        <div class="token-number" id="tokenNumber">MF-2026-4821</div>
+                        <div class="token-qr" id="tokenQR">
+                            <div class="qr-placeholder" id="qrContainer">
+                                <!-- Dynamically generated SVG QR -->
+                            </div>
+                            <span class="qr-label">Scan at Gate #1</span>
+                        </div>
+                    </div>
+                    <div class="token-details">
+                        <div class="token-detail">
+                            <span class="td-label">Farmer</span>
+                            <span class="td-value" id="tokenFarmer">Ramesh Kumar</span>
+                        </div>
+                        <div class="token-detail">
+                            <span class="td-label">Crop</span>
+                            <span class="td-value" id="tokenCrop">Wheat (गेहूं)</span>
+                        </div>
+                        <div class="token-detail">
+                            <span class="td-label">Quantity</span>
+                            <span class="td-value" id="tokenQty">50 Quintals</span>
+                        </div>
+                        <div class="token-detail">
+                            <span class="td-label">Allocated Slot</span>
+                            <span class="td-value" id="tokenSlot">09:00 – 10:00 AM</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions on token -->
+                    <div style="display:flex; gap:10px; margin-top:16px;">
+                        <button class="btn-outline-sm" style="flex:1; justify-content:center;" id="btnPrintToken">🖨️ Print Token</button>
+                        <button class="btn-outline-sm" style="flex:1; justify-content:center;" id="btnSmsToken">📲 Send via SMS</button>
+                    </div>
+                </div>
+
+                <!-- Queue Info & Board -->
+                <div class="queue-info">
+                    <div class="queue-position glass-card">
+                        <h3>Your Queue Position</h3>
+                        <div class="position-display">
+                            <span class="position-number" id="queuePosition">4</span>
+                            <span class="position-label">in line</span>
+                        </div>
+                        <div class="position-eta">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>Estimated wait: <strong id="etaTime">~21 min</strong></span>
+                        </div>
+                        <div class="queue-progress">
+                            <div class="qp-step completed">
+                                <div class="qp-dot"></div>
+                                <span>Registered</span>
+                            </div>
+                            <div class="qp-step completed">
+                                <div class="qp-dot"></div>
+                                <span>Slot Allocated</span>
+                            </div>
+                            <div class="qp-step active">
+                                <div class="qp-dot"></div>
+                                <span>In Queue</span>
+                            </div>
+                            <div class="qp-step">
+                                <div class="qp-dot"></div>
+                                <span>Gate Entry</span>
+                            </div>
+                            <div class="qp-step">
+                                <div class="qp-dot"></div>
+                                <span>Processing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="live-queue glass-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                            <h3>📋 Live Yard Queue Board</h3>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn-filter active" data-filter="all">All</button>
+                                <button class="btn-filter" data-filter="gate">At Gate</button>
+                                <button class="btn-filter" data-filter="processing">Processing</button>
+                                <button class="btn-filter" data-filter="waiting">Waiting</button>
+                            </div>
+                        </div>
+                        <div class="queue-table-wrapper">
+                            <table class="queue-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Token</th>
+                                        <th>Farmer</th>
+                                        <th>Crop</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queueTableBody">
+                                    <!-- Dynamically generated -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top:10px; font-size:11.5px; color:var(--text-muted); display:flex; justify-content:space-between;">
+                            <span>⚡ Board auto-refreshes in real-time</span>
+                            <span id="queueTickerText">🌾 Token MF-4819 completed weighing. Proceeding to Unloading Bay #2.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Gate Entry & Procurement Flow ───── -->
+    <section class="section" id="procurement">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Procurement Flow (Slide 3)</span>
+                <h2 class="section-title">Gate Entry & <span class="gradient-text">Processing Stages</span></h2>
+                <p class="section-subtitle">Interactive demonstration of the 5-stage mandi procurement lifecycle from gate check-in to unloading.</p>
+            </div>
+
+            <div class="procurement-flow" id="procFlowContainer">
+                <!-- Step 1: Gate -->
+                <div class="proc-step glass-card" id="procStep1" data-proc="gate">
+                    <div class="proc-number">01</div>
+                    <div class="proc-icon-large">🚪</div>
+                    <h4>Gate Entry Verification</h4>
+                    <p>Digital token QR is scanned at Gate #1. Identity & vehicle plate matched against registration.</p>
+                    <div class="proc-status">
+                        <span class="proc-badge proc-completed" id="procBadge1">Completed</span>
+                        <span class="proc-time" id="procTime1">09:02 AM</span>
+                    </div>
+                    <div class="proc-step-inputs">
+                        <div class="step-input-group">
+                            <label>Gate Inward:</label>
+                            <span class="val" style="color:var(--green-400);">Gate Pass #884</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="proc-arrow">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+
+                <!-- Step 2: Assaying -->
+                <div class="proc-step glass-card active-stage" id="procStep2" data-proc="assaying">
+                    <div class="proc-number">02</div>
+                    <div class="proc-icon-large">🔬</div>
+                    <h4>Quality Assaying</h4>
+                    <p>Moisture, grain purity, and foreign matter tested by certified assayer in Lab #2.</p>
+                    <div class="proc-status">
+                        <span class="proc-badge proc-progress" id="procBadge2">In Progress</span>
+                        <span class="proc-time" id="procTime2">09:15 AM</span>
+                    </div>
+                    <div class="proc-step-inputs">
+                        <div class="step-input-group">
+                            <label>Moisture %:</label>
+                            <input type="range" id="inputMoisture" min="9" max="18" step="0.1" value="11.8">
+                            <span class="val" id="valMoisture">11.8%</span>
+                        </div>
+                        <div class="step-input-group">
+                            <label>Grade Assayed:</label>
+                            <span class="val" id="valGrade" style="color:var(--green-300);">FAQ Grade A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="proc-arrow">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+
+                <!-- Step 3: Weighing -->
+                <div class="proc-step glass-card" id="procStep3" data-proc="weighing">
+                    <div class="proc-number">03</div>
+                    <div class="proc-icon-large">⚖️</div>
+                    <h4>Digital Weighbridge</h4>
+                    <p>Gross vehicle weight and tare empty vehicle weight digitally captured to compute net commodity.</p>
+                    <div class="proc-status">
+                        <span class="proc-badge proc-pending" id="procBadge3">Pending</span>
+                        <span class="proc-time" id="procTime3">—</span>
+                    </div>
+                    <div class="proc-step-inputs">
+                        <div class="step-input-group">
+                            <label>Gross Weight:</label>
+                            <span class="val" id="valGrossWeight">72.5 Qtl</span>
+                        </div>
+                        <div class="step-input-group">
+                            <label>Tare / Net:</label>
+                            <span class="val" id="valNetWeight">48.5 Qtl</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="proc-arrow">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+
+                <!-- Step 4: Procurement -->
+                <div class="proc-step glass-card" id="procStep4" data-proc="procurement">
+                    <div class="proc-number">04</div>
+                    <div class="proc-icon-large">📄</div>
+                    <h4>MSP Procurement</h4>
+                    <p>Official MSP rate applied. Official Mandi Form J sale slip generated with zero commission deductions.</p>
+                    <div class="proc-status">
+                        <span class="proc-badge proc-pending" id="procBadge4">Pending</span>
+                        <span class="proc-time" id="procTime4">—</span>
+                    </div>
+                    <div class="proc-step-inputs">
+                        <div class="step-input-group">
+                            <label>MSP Rate:</label>
+                            <span class="val">₹ 2,275/Qtl</span>
+                        </div>
+                        <div class="step-input-group">
+                            <label>Settlement:</label>
+                            <span class="val" style="color:var(--gold-300);" id="valStepSettlement">₹ 1,10,337.50</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="proc-arrow">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+
+                <!-- Step 5: Unloading -->
+                <div class="proc-step glass-card" id="procStep5" data-proc="unloading">
+                    <div class="proc-number">05</div>
+                    <div class="proc-icon-large">📦</div>
+                    <h4>Unloading & Storage</h4>
+                    <p>Vehicle directed to assigned Unloading Bay. Bags stacked and registered for FCI rail/truck rake dispatch.</p>
+                    <div class="proc-status">
+                        <span class="proc-badge proc-pending" id="procBadge5">Pending</span>
+                        <span class="proc-time" id="procTime5">—</span>
+                    </div>
+                    <div class="proc-step-inputs">
+                        <div class="step-input-group">
+                            <label>Bay Assigned:</label>
+                            <span class="val" id="valBayAssigned">Bay 04 (Stack 7)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Stage Controls -->
+            <div class="proc-simulator-actions">
+                <button class="btn-primary-sm" id="btnProcAdvance">▶️ Advance to Next Stage</button>
+                <button class="btn-outline-sm" id="btnProcFastForward">⚡ Fast-Forward Full Journey</button>
+                <button class="btn-outline-sm" id="btnProcReset">🔄 Reset Stages</button>
+                <button class="btn-outline-sm" id="btnOpenReceiptDirect">📄 View Current J-Form Bill</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Payment & Tracking Section ───── -->
+    <section class="section section-alt" id="tracking">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Final Settlement</span>
+                <h2 class="section-title">Payment & <span class="gradient-text">DBT Status Tracking</span></h2>
+                <p class="section-subtitle">Transparent government MSP payment disbursed directly into your Aadhaar-linked bank account via PFMS.</p>
+            </div>
+            <div class="tracking-grid">
+                <div class="payment-card glass-card">
+                    <div class="payment-header">
+                        <h3>💰 Procurement Payment Summary</h3>
+                        <span class="payment-status-badge status-processing" id="paymentStatusBadge">Processing via PFMS</span>
+                    </div>
+                    <div class="payment-body">
+                        <div class="payment-row">
+                            <span>Procured Crop</span>
+                            <span id="payCrop">Wheat (गेहूं) — FAQ Grade A</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Gross Weight</span>
+                            <span id="payGross">72.50 Quintals</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Tare Vehicle Weight</span>
+                            <span id="payTare">24.00 Quintals</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Net Procured Weight</span>
+                            <span id="payNet">48.50 Quintals</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Official MSP Rate</span>
+                            <span id="payMsp">₹ 2,275.00 / Quintal</span>
+                        </div>
+                        <div class="payment-row highlight-row">
+                            <span>Total Payable to Farmer</span>
+                            <span class="payment-amount" id="payTotal">₹ 1,10,337.50</span>
+                        </div>
+                        <div class="payment-divider"></div>
+                        <div class="payment-row">
+                            <span>Disbursement Route</span>
+                            <span>Direct Benefit Transfer (DBT / PFMS)</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Bank Account</span>
+                            <span id="payBank">SBI ****4523 (IFSC: SBIN0001234)</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Treasury UTR No.</span>
+                            <span id="payUtr">RBI2026994821</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-timeline">
+                        <div class="pt-step completed">
+                            <div class="pt-dot"></div>
+                            <div class="pt-info">
+                                <span class="pt-title">Procurement & Assaying Verified</span>
+                                <span class="pt-time">09:45 AM, Today</span>
+                            </div>
+                        </div>
+                        <div class="pt-step completed">
+                            <div class="pt-dot"></div>
+                            <div class="pt-info">
+                                <span class="pt-title">Mandi Board e-Sign Completed</span>
+                                <span class="pt-time">10:00 AM, Today</span>
+                            </div>
+                        </div>
+                        <div class="pt-step active">
+                            <div class="pt-dot"></div>
+                            <div class="pt-info">
+                                <span class="pt-title">Processing at State Treasury / PFMS</span>
+                                <span class="pt-time">In Progress (Disbursement Mandate Issued)</span>
+                            </div>
+                        </div>
+                        <div class="pt-step">
+                            <div class="pt-dot"></div>
+                            <div class="pt-info">
+                                <span class="pt-title">Credited to Farmer's Account</span>
+                                <span class="pt-time">Expected: Within 48 hours</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Print / Download Official J-Form -->
+                    <div style="margin-top:20px;">
+                        <button class="btn-primary btn-full" id="btnShowReceipt">
+                            <span>📄 View & Print Official Mandi J-Form Receipt</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ───── Dynamic Exception Management (Slide 2 & 4) ───── -->
+                <div class="exception-card glass-card" id="exceptions">
+                    <div class="exception-header">
+                        <h3>⚡ Dynamic Exception Engine</h3>
+                        <p>Self-healing queue algorithms handle anomalies without human intervention</p>
+                    </div>
+
+                    <div class="exception-list">
+                        <div class="exc-item">
+                            <div class="exc-icon">🕐</div>
+                            <div class="exc-info">
+                                <h5>Late Arrival Management</h5>
+                                <p>Farmer delayed by tractor or traffic. System auto-reassigns to next available buffer slot without bumping punctual farmers.</p>
+                            </div>
+                            <div class="exc-action">
+                                <span class="exc-badge">Auto-Resolve</span>
+                            </div>
+                        </div>
+
+                        <div class="exc-item">
+                            <div class="exc-icon">🚶</div>
+                            <div class="exc-info">
+                                <h5>Walk-in (No Slot / Unregistered)</h5>
+                                <p>Unscheduled farmer arrives at gate. Capacity gap analyzer detects idle time across assaying counters & assigns emergency standby token.</p>
+                            </div>
+                            <div class="exc-action">
+                                <span class="exc-badge">Capacity Gap Check</span>
+                            </div>
+                        </div>
+
+                        <div class="exc-item">
+                            <div class="exc-icon">❌</div>
+                            <div class="exc-info">
+                                <h5>No-Show Grace Expiry</h5>
+                                <p>Farmer fails to report within 15-min grace window. Slot auto-releases, waitlisted farmers advance, and SMS cancellation is sent.</p>
+                            </div>
+                            <div class="exc-action">
+                                <span class="exc-badge">Auto-Release</span>
+                            </div>
+                        </div>
+
+                        <div class="exc-item">
+                            <div class="exc-icon">🔄</div>
+                            <div class="exc-info">
+                                <h5>Cancellation & Rescheduling</h5>
+                                <p>Farmer cancels via mobile app or IVR. Slot is immediately re-offered to the highest-waitlist farmer with instant SMS notification.</p>
+                            </div>
+                            <div class="exc-action">
+                                <span class="exc-badge">Instant Realloc</span>
+                            </div>
+                        </div>
+
+                        <div class="exc-item">
+                            <div class="exc-icon">🔀</div>
+                            <div class="exc-info">
+                                <h5>Equipment Breakdown & Rebalance</h5>
+                                <p>If a weighbridge or assaying station faults, inbound queues are dynamically re-routed across functioning lanes to minimize delay.</p>
+                            </div>
+                            <div class="exc-action">
+                                <span class="exc-badge">Dynamic Rebalance</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Exception Simulator Bar -->
+                    <div class="exception-sim-bar">
+                        <div class="exception-sim-header">
+                            <h4>🧪 Live Exception Simulation Panel</h4>
+                            <span style="font-size:11px; color:var(--gold-400);">Click to test edge-case handling</span>
+                        </div>
+                        <div class="exception-btn-group">
+                            <button class="btn-exception late" id="btnSimLate">🕐 Test Late Arrival</button>
+                            <button class="btn-exception walkin" id="btnSimWalkin">🚶 Test Walk-in Farmer</button>
+                            <button class="btn-exception noshow" id="btnSimNoShow">❌ Trigger No-Show Timeout</button>
+                            <button class="btn-exception breakdown" id="btnSimBreakdown">⚠️ Trigger Weighbridge Fault</button>
+                            <button class="btn-exception reset" id="btnSimResetExceptions">🔄 Reset & Rebalance</button>
+                        </div>
+                        <div class="exception-audit-log" id="exceptionAuditLog">
+                            <div class="audit-entry">
+                                <span class="audit-time">[08:15 AM]</span>
+                                <span class="audit-tag success">INFO</span>
+                                <span>Capacity scheduler active. Baseline 24 vehicles/hr established.</span>
+                            </div>
+                            <div class="audit-entry">
+                                <span class="audit-time">[08:42 AM]</span>
+                                <span class="audit-tag success">RESOLVED</span>
+                                <span>Token MF-4817 arrived 15m late: Auto-diverted to Buffer Bay 2.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Footer ───── -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <span class="logo-icon">🌾</span>
+                        <span class="logo-text">Mandi<span class="logo-accent">Flow</span></span>
+                    </div>
+                    <p>Capacity-Aware Mandi Flow Orchestrator. Developed for Smart India Hackathon 2026 (Problem Statement 26032) by Team NUVEXA. Designed to eliminate mandi congestion, ensure fair MSP disbursement, and empower farmers with contactless virtual queues and IVR access.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Navigation</h4>
+                    <a href="#registration">Farmer Registration</a>
+                    <a href="#slot-booking">Book Capacity Slot</a>
+                    <a href="#capacity">Capacity Engine</a>
+                    <a href="#queue">Virtual Queue Board</a>
+                    <a href="#procurement">Gate Entry & Assaying</a>
+                    <a href="#tracking">Payment & DBT Tracking</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Government Integrations</h4>
+                    <a href="https://play.google.com/store/apps/details?id=in.gov.enam" target="_blank">e-NAM Mobile Portal</a>
+                    <a href="https://esamridhi.in/#/" target="_blank">E-Samridhi (NAFED)</a>
+                    <a href="https://dfpd.gov.in/food-corporation-of-india/en" target="_blank">DFPD / FCI Procurement</a>
+                    <a href="https://agmarknet.gov.in/" target="_blank">AGMARKNET Price Portal</a>
+                    <a href="#" onclick="window.openArchModal(); return false;">Technical Architecture Spec</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Kisan Helpdesk</h4>
+                    <a href="#" onclick="window.openIVRModal(); return false;">📞 Kisan IVR Helpline: 1800-MANDI</a>
+                    <a href="#" onclick="window.openSMSModal(); return false;">💬 SMS Fallback Service</a>
+                    <a href="mailto:support@mandiflow.gov.in">📧 support@mandiflow.gov.in</a>
+                    <a href="#">🏛️ Ministry of Agriculture & Farmers Welfare</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MandiFlow Orchestrator. Built for Smart India Hackathon 2026 • Team NUVEXA.</p>
+                <div class="footer-badges">
+                    <span class="f-badge">🇮🇳 Smart India Hackathon 2026</span>
+                    <span class="f-badge">🔒 100% Encrypted & Aadhaar Verified</span>
+                    <span class="f-badge">📱 IVR & Feature-Phone Compatible</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════
+         MODALS & SIMULATOR DRAWERS
+         ═══════════════════════════════════════════════ -->
+
+    <!-- 1. Interactive IVR Phone Simulator Modal (Slide 2 & 4) -->
+    <div class="modal-overlay" id="ivrModal">
+        <div class="modal-card" style="max-width:390px; padding:20px 14px;">
+            <button class="modal-close-btn" id="closeIVRModal">&times;</button>
+            <div class="phone-mockup-wrapper">
+                <div style="text-align:center; margin-bottom:10px;">
+                    <h3 style="font-size:16px; color:var(--gold-400);">📞 Kisan IVR Voice Helpline</h3>
+                    <p style="font-size:11.5px; color:var(--text-muted);">Feature-Phone Interactive Voice Response</p>
+                </div>
+                <div class="phone-shell">
+                    <div class="phone-earpiece"></div>
+                    <div class="phone-screen">
+                        <div class="phone-screen-header">
+                            <span>📶 KISAN-NET</span>
+                            <span id="ivrPhoneClock">11:45 AM</span>
+                            <span>🔋 85%</span>
+                        </div>
+                        <div class="phone-screen-body">
+                            <div class="phone-caller-info">
+                                <div class="phone-caller-title" id="ivrCallStatus">Toll Free: 1800-MANDI</div>
+                                <div class="phone-caller-sub" id="ivrCallDuration">Call Ready • Press Call</div>
+                            </div>
+                            <div class="phone-audio-wave" id="ivrAudioWave" style="display:none;">
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                            </div>
+                            <div class="phone-live-transcript" id="ivrTranscript">
+                                Press [CALL] to connect to MandiFlow automated voice service.
+                            </div>
+                        </div>
+                        <div class="phone-screen-footer">
+                            <span id="ivrLangIndicator">Language: English</span>
+                            <span>MandiFlow 2026</span>
+                        </div>
+                    </div>
+
+                    <div class="phone-controls">
+                        <div class="phone-call-actions">
+                            <button class="btn-phone-call" id="btnIvrStartCall">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                                Call
+                            </button>
+                            <button class="btn-phone-end" id="btnIvrEndCall">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.58.9-1.07.5-2.02 1.18-2.83 2-.2.2-.48.31-.77.31-.29 0-.57-.11-.77-.31L.38 13.65c-.39-.39-.39-1.02 0-1.41C3.39 9.17 7.45 7.5 12 7.5s8.61 1.67 11.62 4.74c.39.39.39 1.02 0 1.41l-2.07 2.07c-.2.2-.48.31-.77.31-.29 0-.57-.11-.77-.31-.81-.82-1.76-1.5-2.83-2-.35-.16-.58-.51-.58-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
+                                End
+                            </button>
+                        </div>
+
+                        <!-- 12 Key Dialpad -->
+                        <div class="phone-keypad">
+                            <button class="keypad-btn" data-key="1"><span class="key-num">1</span><span class="key-sub">SLOT</span></button>
+                            <button class="keypad-btn" data-key="2"><span class="key-num">2</span><span class="key-sub">TOKEN</span></button>
+                            <button class="keypad-btn" data-key="3"><span class="key-num">3</span><span class="key-sub">QUEUE</span></button>
+                            <button class="keypad-btn" data-key="4"><span class="key-num">4</span><span class="key-sub">PAYMENT</span></button>
+                            <button class="keypad-btn" data-key="5"><span class="key-num">5</span><span class="key-sub">JKL</span></button>
+                            <button class="keypad-btn" data-key="6"><span class="key-num">6</span><span class="key-sub">MNO</span></button>
+                            <button class="keypad-btn" data-key="7"><span class="key-num">7</span><span class="key-sub">PQRS</span></button>
+                            <button class="keypad-btn" data-key="8"><span class="key-num">8</span><span class="key-sub">TUV</span></button>
+                            <button class="keypad-btn" data-key="9"><span class="key-num">9</span><span class="key-sub">SMS</span></button>
+                            <button class="keypad-btn" data-key="*"><span class="key-num">*</span><span class="key-sub">LANG</span></button>
+                            <button class="keypad-btn" data-key="0"><span class="key-num">0</span><span class="key-sub">AGENT</span></button>
+                            <button class="keypad-btn" data-key="#"><span class="key-num">#</span><span class="key-sub">MAIN</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Simulated SMS Messages Fallback Drawer (Slide 4) -->
+    <div class="modal-overlay" id="smsModal">
+        <div class="modal-card" style="max-width:400px; padding:22px;">
+            <button class="modal-close-btn" id="closeSMSModal">&times;</button>
+            <div style="text-align:center; margin-bottom:14px;">
+                <h3 style="font-size:16px; color:var(--green-400);">💬 SMS Fallback Messages</h3>
+                <p style="font-size:11.5px; color:var(--text-muted);">Ensures basic-phone connectivity during low network</p>
+            </div>
+            <div class="sms-shell">
+                <div class="sms-messages-list" id="smsMessagesList">
+                    <!-- Dynamically populated -->
+                </div>
+                <div class="sms-quick-reply">
+                    <input type="text" id="smsQueryInput" placeholder="e.g. STATUS MF-2026-4821">
+                    <button type="button" id="btnSendSmsQuery">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Official Mandi J-Form (e-Bilti) Receipt Modal -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-card large" style="padding:20px;">
+            <button class="modal-close-btn" id="closeReceiptModal">&times;</button>
+            <div class="jform-wrapper" id="jformPrintable">
+                <div class="jform-header">
+                    <div class="jform-emblem">🏛️</div>
+                    <div class="jform-govt-title">GOVERNMENT OF MADHYA PRADESH • DEPARTMENT OF AGRICULTURAL MARKETING</div>
+                    <div class="jform-mandi-name">KRISHI UPAJ MANDI SAMITI, INDORE</div>
+                    <div class="jform-badge-title">FORM J [See Rule 24(1)] — OFFICIAL PROCUREMENT SALE MEMORANDUM</div>
+                </div>
+
+                <div class="jform-meta-grid">
+                    <div class="jform-meta-item">
+                        <strong>Receipt / Bill No:</strong>
+                        <span id="jformBillNo">IND-2026-098421</span>
+                    </div>
+                    <div class="jform-meta-item">
+                        <strong>Date & Time:</strong>
+                        <span id="jformDateTime">15-11-2026 09:48 AM</span>
+                    </div>
+                    <div class="jform-meta-item">
+                        <strong>Token Reference:</strong>
+                        <span id="jformToken">MF-2026-4821</span>
+                    </div>
+                    <div class="jform-meta-item">
+                        <strong>Farmer Name:</strong>
+                        <span id="jformFarmerName">Ramesh Kumar</span>
+                    </div>
+                    <div class="jform-meta-item">
+                        <strong>Aadhaar / Land Record:</strong>
+                        <span id="jformAadhaar">XXXX-XXXX-4521 | Khasra 142/2A</span>
+                    </div>
+                    <div class="jform-meta-item">
+                        <strong>Procuring Agency:</strong>
+                        <span>Food Corporation of India (FCI)</span>
+                    </div>
+                </div>
+
+                <table class="jform-table">
+                    <thead>
+                        <tr>
+                            <th>Commodity</th>
+                            <th>Quality Grade</th>
+                            <th>Moisture</th>
+                            <th>Gross Wt (Qtl)</th>
+                            <th>Tare Wt (Qtl)</th>
+                            <th>Net Wt (Qtl)</th>
+                            <th>Govt MSP (₹/Qtl)</th>
+                            <th style="text-align:right;">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="jformCrop">Wheat (गेहूं)</td>
+                            <td id="jformGrade">FAQ Grade A</td>
+                            <td id="jformMoisture">11.8% (Allowed: 12%)</td>
+                            <td id="jformGross">72.50</td>
+                            <td id="jformTare">24.00</td>
+                            <td id="jformNet">48.50</td>
+                            <td id="jformMsp">₹ 2,275.00</td>
+                            <td class="amount" id="jformAmount">₹ 1,10,337.50</td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" style="color:#64748b; font-style:italic;">Mandi Fee (1.5%) & Krishi Kalyan Cess: Fully Borne by FCI Govt Agency (Zero Farmer Deduction)</td>
+                            <td class="amount">₹ 0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="jform-total-box">
+                    <span class="jform-total-label">NET AMOUNT PAYABLE TO FARMER:</span>
+                    <span class="jform-total-val" id="jformTotalVal">₹ 1,10,337.50</span>
+                </div>
+
+                <div class="jform-footer-grid">
+                    <div>
+                        <p><strong>DBT Mandate Details:</strong></p>
+                        <p>Direct Credit to: State Bank of India • A/c: ****4523 • IFSC: SBIN0001234</p>
+                        <p>PFMS Central Treasury Batch: <code>PFMS-AGRI-2026-98124</code> • UTR: <code>RBI2026994821</code></p>
+                    </div>
+                    <div class="jform-qr-box">
+                        <div id="jformQrCodeContainer"></div>
+                        <span style="font-size:9.5px; color:#64748b;">Scan to verify e-Sign</span>
+                    </div>
+                    <div class="jform-stamp-box">
+                        <div>SEAL OF MANDI SECRETARY</div>
+                        <div style="font-size:18px; margin:4px 0;">✓ DIGITALLY SIGNED</div>
+                        <div>APMC INDORE (M.P.)</div>
+                    </div>
+                </div>
+
+                <div class="jform-actions">
+                    <button class="btn-outline-sm" style="color:#111; border-color:#cbd5e1;" onclick="window.print()">🖨️ Print Form J</button>
+                    <button class="btn-primary-sm" onclick="window.downloadReceiptText()">📥 Download e-Receipt (PDF)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. System Architecture & SIH 2026 Research References Modal (Slide 3 & 6) -->
+    <div class="modal-overlay" id="archModal">
+        <div class="modal-card large">
+            <button class="modal-close-btn" id="closeArchModal">&times;</button>
+            <div style="margin-bottom:20px;">
+                <span class="section-badge">Technical Architecture</span>
+                <h3 style="font-size:20px; color:var(--text-primary); margin-top:6px;">MandiFlow Orchestration System — SIH 2026</h3>
+                <p style="font-size:13px; color:var(--text-secondary);">Detailed design mapping directly to SIH Problem Statement 26032 & Presentation Deck</p>
+            </div>
+
+            <div class="arch-grid">
+                <div class="arch-card">
+                    <h4>🖥️ Technology Stack (Slide 3)</h4>
+                    <ul class="arch-list">
+                        <li><strong>Frontend:</strong> React.js / Modern Progressive Web App (PWA) with offline caching</li>
+                        <li><strong>Backend:</strong> Node.js + Express.js High-Throughput REST APIs</li>
+                        <li><strong>Database:</strong> PostgreSQL / MySQL with ACID transactional booking locks</li>
+                        <li><strong>Communication:</strong> Interactive Voice Response (IVR) + SMS Gateway integration</li>
+                        <li><strong>Deployment:</strong> Cloud Containerized Architecture with horizontal auto-scaling</li>
+                    </ul>
+                </div>
+
+                <div class="arch-card">
+                    <h4>⚙️ Capacity-Aware Scheduling Engine</h4>
+                    <ul class="arch-list">
+                        <li><strong>Dynamic Bottleneck Math:</strong> Slot_Capacity = min(Assaying_Rate, Weighbridge_Rate, Unloading_Rate)</li>
+                        <li><strong>Virtual Queuing:</strong> Zero physical congestion; geo-fenced ETA notifications</li>
+                        <li><strong>Dynamic Rescheduling:</strong> Buffer windows absorb delays without blocking on-time farmers</li>
+                        <li><strong>Offline Resiliency:</strong> Local IndexedDB persistence with automatic sync upon reconnect</li>
+                    </ul>
+                </div>
+
+                <div class="arch-card">
+                    <h4>📞 Omnichannel Inclusivity (Slide 2 & 4)</h4>
+                    <ul class="arch-list">
+                        <li><strong>IVR Voice Menu:</strong> 1: Slot Booking, 2: Token Details, 3: Queue Position, 4: Payment Status</li>
+                        <li><strong>Basic Phone Fallback:</strong> SMS token confirmation, gate arrival alerts, and DBT transfer receipts</li>
+                        <li><strong>Regional Languages:</strong> English, Hindi, and Punjabi voice & text support</li>
+                        <li><strong>Aadhaar / Land Records:</strong> Auto-verifies landholding against MP/HP Bhulekh records</li>
+                    </ul>
+                </div>
+
+                <div class="arch-card">
+                    <h4>📚 References Cited in Project (Slide 6)</h4>
+                    <ul class="arch-list">
+                        <li><strong>e-NAM Mobile App:</strong> National Agriculture Market standard integration</li>
+                        <li><strong>E-Samridhi:</strong> NAFED pulses and oilseeds procurement protocol</li>
+                        <li><strong>DFPD / FCI:</strong> Food Corporation of India centralized grain handling</li>
+                        <li><strong>AGMARKNET:</strong> Real-time Mandi price & arrival intelligence network</li>
+                        <li><strong>Tribune India:</strong> Study on portal glitches and waiting queue bottlenecks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ───── Toast Container ───── -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
