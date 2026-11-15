@@ -84,8 +84,36 @@ const MandiState = {
     }
 };
 
+// ───── Backend API Client Helper ─────
+const API_BASE = (window.location.protocol.startsWith('http')) ? '' : 'http://localhost:3000';
+
+async function apiCall(endpoint, method = 'GET', data = null) {
+    try {
+        const options = {
+            method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (data) options.body = JSON.stringify(data);
+        const res = await fetch(`${API_BASE}${endpoint}`, options);
+        if (res.ok) return await res.json();
+    } catch (e) {
+        // Fall back gracefully to local state
+    }
+    return null;
+}
+
+async function checkBackendHealth() {
+    const health = await apiCall('/api/health');
+    if (health && health.success) {
+        const netLabel = document.getElementById('networkLabel');
+        if (netLabel) netLabel.textContent = 'Backend Active';
+        console.log(`[MandiFlow] Connected to Backend REST API (SIH ${health.sih_year})`);
+    }
+}
+
 // ───── Application Bootstrap ─────
 document.addEventListener('DOMContentLoaded', () => {
+    checkBackendHealth();
     initPreloader();
     initParticles();
     initNavbar();

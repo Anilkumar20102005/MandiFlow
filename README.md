@@ -89,6 +89,9 @@ An interactive walkthrough covering every physical stage of procurement:
 ```
 -MandiFlow-main/
 │
+├── server.js                            # Node.js + Express REST API Backend Server
+├── package.json                         # Node dependencies & start scripts
+├── test-api.js                          # Automated test suite for all 10 REST endpoints
 ├── index.html                           # Complete SPA with all SIH 2026 interactive modules
 ├── styles.css                           # Design system (Agricultural Green & Gold Theme, responsive)
 ├── app.js                              # Application state machine, IVR engine, Exception logic, QR gen
@@ -100,22 +103,26 @@ An interactive walkthrough covering every physical stage of procurement:
 
 ## 🚀 Getting Started
 
-No build step or external dependencies are required. The application runs natively in any modern browser:
+### Option 1: Full-Stack Mode (Node.js + Express Backend) — Recommended
+Run the complete Node.js backend server with REST APIs and live static file serving:
 
-### Option 1: Direct Browser Launch
-Double-click `index.html` or open it in Google Chrome, Microsoft Edge, Mozilla Firefox, or Safari.
-
-### Option 2: Local HTTP Server (Python)
 ```bash
-# In the project directory:
-python -m http.server 8000
-```
-Then visit `http://localhost:8000` in your browser.
+# 1. Install dependencies (Express & CORS)
+npm install
 
-### Option 3: Node.js (npx serve)
-```bash
-npx serve .
+# 2. Start the backend API server (runs on port 3000)
+npm start
+# or: node server.js
+
+# 3. (Optional) Run automated API test suite
+node test-api.js
 ```
+Then visit **`http://localhost:3000`** in your browser. All frontend actions communicate with live backend REST endpoints.
+
+### Option 2: Direct Client-Side / Standalone Mode
+No dependencies required. The application gracefully runs client-side with offline resilience:
+- Double-click `index.html` or open in any web browser.
+- Or run `python -m http.server 8000` and visit `http://localhost:8000`.
 
 ---
 
